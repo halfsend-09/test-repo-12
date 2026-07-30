@@ -12,12 +12,6 @@ roles:
     - fix
     - retro
     - prioritize
-agents:
-    - name: enabled-ping
-      source: harness/enabled-ping.yaml
-    - name: disabled-ping
-      source: harness/disabled-ping.yaml
-      enabled: false
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/
