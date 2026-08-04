@@ -12,16 +12,6 @@ roles:
     - fix
     - retro
     - prioritize
-agents:
-    - name: fork-pr-ping
-      source: harness/fork-pr-ping.yaml
-    - name: fork-issue-ping
-      source: harness/fork-issue-ping.yaml
-    - name: fork-pr-killed
-      source: harness/fork-pr-killed.yaml
-      enabled: false
-    - name: fork-pr-nofork
-      source: harness/fork-pr-nofork.yaml
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/
