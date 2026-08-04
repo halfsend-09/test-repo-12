@@ -20,6 +20,8 @@ agents:
     - name: fork-pr-killed
       source: harness/fork-pr-killed.yaml
       enabled: false
+    - name: fork-pr-nofork
+      source: harness/fork-pr-nofork.yaml
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/
