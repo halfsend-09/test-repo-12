@@ -4,7 +4,6 @@
 # This file configures fullsend for per-repo installation mode.
 # See ADR 0033 for details.
 version: "1"
-kill_switch: false
 runtime: dummy
 roles:
     - triage
@@ -13,9 +12,6 @@ roles:
     - fix
     - retro
     - prioritize
-agents:
-    - name: fork-pr-killswitch
-      source: harness/fork-pr-killswitch.yaml
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/
