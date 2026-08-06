@@ -17,6 +17,9 @@ agents:
       source: harness/fork-pr-ping.yaml
     - name: fork-issue-ping
       source: harness/fork-issue-ping.yaml
+    - name: fork-pr-killed
+      source: harness/fork-pr-killed.yaml
+      enabled: false
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/
