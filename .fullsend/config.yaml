@@ -12,6 +12,9 @@ roles:
     - fix
     - retro
     - prioritize
+agents:
+    - name: good-allowed
+      source: harness/good-allowed.yaml
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/
