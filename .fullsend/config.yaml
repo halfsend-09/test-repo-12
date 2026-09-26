@@ -20,8 +20,6 @@ create_issues:
         repos:
             - halfsend-09/test-repo-12
             - fullsend-ai/fullsend
-authorization:
-    - provider: owners_file
 mint_url: https://bt-a3b92f8f-bt-mint.fullsend-ai.workers.dev
 inference:
     project: it-gcp-konflux-e2e-fullsend
