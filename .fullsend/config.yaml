@@ -21,6 +21,8 @@ roles:
 agents:
     - name: needs-review-bot
       source: harness/needs-review-bot.yaml
+    - name: needs-coder-bot
+      source: harness/needs-coder-bot.yaml
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/
