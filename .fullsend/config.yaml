@@ -18,6 +18,9 @@ roles:
     - fix
     - retro
     - prioritize
+agents:
+    - name: needs-review-bot
+      source: harness/needs-review-bot.yaml
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/
