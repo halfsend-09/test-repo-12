@@ -1,0 +1,113 @@
+# Behaviour-test bot actor (pkg/behaviourtest/steps/bot_actors.go).
+# Pushed to a temporary branch of the leased test repository; scenario
+# cleanup deletes the branch.
+name: bot-actor-a721215e
+
+on:
+  push:
+    branches: ['behaviour/bot-actor-a721215e']
+
+permissions: {}
+
+jobs:
+  act:
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+    timeout-minutes: 10
+    steps:
+      - name: Act as the role bot
+        env:
+          MINT_URL: ${{ vars.FULLSEND_MINT_URL }}
+          ROLE: 'review'
+          REPO: 'halfsend-09/test-repo-12'
+          REPO_NAME: 'test-repo-12'
+          ISSUE: '1'
+          ACTION: 'label'
+          VALUE: 'do-it'
+        run: |
+          set -euo pipefail
+          token=''
+
+          # usable_token VALUE succeeds for a non-empty token made only of
+          # characters that appear in OIDC JWTs and GitHub installation
+          # tokens. Anything else (whitespace, control characters, "%"
+          # escapes, ":") could smuggle a workflow command into add-mask.
+          token_re='^[A-Za-z0-9._~+/=-]+$'
+          usable_token() {
+            [[ -n "$1" && "$1" =~ ${token_re} ]]
+          }
+
+          revoke_token() {
+            local attempt code
+            [[ -n "${token}" ]] || return 0
+            for attempt in 1 2 3; do
+              code="$(curl -sS --connect-timeout 10 --max-time 20 -o /dev/null -w '%{http_code}' -X DELETE \
+                -H "Authorization: Bearer ${token}" \
+                -H "Accept: application/vnd.github+json" \
+                https://api.github.com/installation/token)" || code=000
+              if [[ "${code}" == 204 ]]; then
+                token=''
+                return 0
+              fi
+              sleep 2
+            done
+            return 1
+          }
+          trap 'revoke_token || true' EXIT
+
+          if [[ -z "${MINT_URL}" ]]; then
+            echo "FULLSEND_MINT_URL is not set on the repository"
+            exit 1
+          fi
+          if [[ "${MINT_URL}" != https://* ]]; then
+            echo "FULLSEND_MINT_URL must start with https://"
+            exit 1
+          fi
+          oidc_token="$(curl -sS --fail --retry 3 --retry-delay 2 --retry-all-errors \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=fullsend-mint" | jq -er '.value')"
+          if ! usable_token "${oidc_token}"; then
+            echo "the OIDC token response is not a usable token"
+            exit 1
+          fi
+          echo "::add-mask::${oidc_token}"
+
+          request="$(jq -nc --arg role "${ROLE}" --arg repo "${REPO_NAME}" \
+            '{role: $role, level: "write", repos: [$repo]}')"
+          minted="$(curl -sS --fail --proto '=https' --retry 2 --retry-delay 2 \
+            -H "Authorization: Bearer ${oidc_token}" \
+            -H "Content-Type: application/json" \
+            -d "${request}" \
+            "${MINT_URL%/}/v1/token" | jq -er '.token')"
+          if ! usable_token "${minted}"; then
+            echo "the mint token response is not a usable token"
+            exit 1
+          fi
+          echo "::add-mask::${minted}"
+          token="${minted}"
+
+          case "${ACTION}" in
+            comment)
+              url="https://api.github.com/repos/${REPO}/issues/${ISSUE}/comments"
+              payload="$(jq -nc --arg body "${VALUE}" '{body: $body}')"
+              ;;
+            label)
+              url="https://api.github.com/repos/${REPO}/issues/${ISSUE}/labels"
+              payload="$(jq -nc --arg label "${VALUE}" '{labels: [$label]}')"
+              ;;
+            review)
+              url="https://api.github.com/repos/${REPO}/pulls/${ISSUE}/reviews"
+              payload="$(jq -nc --arg body "${VALUE}" '{event: "COMMENT", body: $body}')"
+              ;;
+            *)
+              echo "unknown action ${ACTION}"
+              exit 1
+              ;;
+          esac
+          curl -sS --fail -o /dev/null -X POST \
+            -H "Authorization: Bearer ${token}" \
+            -H "Accept: application/vnd.github+json" \
+            -d "${payload}" \
+            "${url}"
+          revoke_token
