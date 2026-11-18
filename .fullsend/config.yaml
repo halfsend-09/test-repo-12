@@ -27,6 +27,8 @@ agents:
       source: harness/needs-triage-bot.yaml
     - name: on-label
       source: harness/on-label.yaml
+    - name: on-review
+      source: harness/on-review.yaml
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/
